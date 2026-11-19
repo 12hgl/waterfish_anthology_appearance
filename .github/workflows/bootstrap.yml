@@ -12,36 +12,42 @@ permissions:
 jobs:
   import:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
 
-      - name: 已经导入过就跳过
-        id: guard
+      - name: 探测与下载
         run: |
-          if [ -f categories.json ]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "仓库已有内容，跳过导入"
+          mkdir -p .ci
+          {
+            echo "time: $(date -u)"
+            echo "whoami: $(whoami)"
+            echo "has categories.json: $([ -f categories.json ] && echo yes || echo no)"
+          } > .ci/diag.txt
+
+          ok=""
+          for u in "https://temp.sh/xwTMf/repo.tgz" "https://temp.sh/xwTMf/repo.tgz?download=1"; do
+            code=$(curl -sS -X POST --max-time 60 -o /tmp/r.tgz -w "%{http_code}" "$u" 2>/tmp/err.txt) || code="curl-fail"
+            size=$(wc -c < /tmp/r.tgz 2>/dev/null || echo 0)
+            kind=$(file -b /tmp/r.tgz 2>/dev/null || echo unknown)
+            echo "$u | http=$code | size=$size | $kind" >> .ci/diag.txt
+            if echo "$kind" | grep -qi gzip; then ok="$u"; break; fi
+          done
+
+          if [ -n "$ok" ]; then
+            echo "downloaded from $ok" >> .ci/diag.txt
+            tar -xzf /tmp/r.tgz -C . && echo "extracted: $(ls -1 | wc -l) entries" >> .ci/diag.txt
           else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "no source reachable" >> .ci/diag.txt
+            cat /tmp/err.txt >> .ci/diag.txt 2>/dev/null || true
           fi
 
-      - name: 下载快照
-        if: steps.guard.outputs.skip == 'false'
-        run: |
-          set -euo pipefail
-          curl -fsSL -X POST -o /tmp/repo.tgz "https://temp.sh/xwTMf/repo.tgz"
-          file /tmp/repo.tgz | grep -q gzip
-          tar -xzf /tmp/repo.tgz -C "$GITHUB_WORKSPACE"
-          ls -1 | head -20
+          echo "--- diag ---"; cat .ci/diag.txt
 
       - name: 提交
-        if: steps.guard.outputs.skip == 'false'
         run: |
-          set -euo pipefail
-          rm -f .github/workflows/bootstrap.yml
           git config user.name "12hgl"
           git config user.email "240260851+12hgl@users.noreply.github.com"
           git add -A
-          git commit -m "外观库：21 套示例外观、issue 投稿与审核流水线、Vercel 站点"
+          git commit -m "导入快照并记录诊断" || echo "nothing to commit"
           git push origin HEAD:main
