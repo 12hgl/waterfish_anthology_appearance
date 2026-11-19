@@ -79,7 +79,7 @@ async function main() {
   source = normalizeSource(source || '');
 
   if (!source.trim()) {
-    await fail(issue, '没能从 issue 里读到 JS 内容。请检查「JS 内容」一欄，把代码放进 ```js 代码块，或贴一个 raw 链接。');
+    await fail(issue, '没能从 issue 里读到 JS 内容。请检查「JS 内容」一栏，把代码放进 ```js 代码块，或贴一个 raw 链接。');
     process.exitCode = 1;
     return;
   }
