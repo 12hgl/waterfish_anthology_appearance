@@ -1,0 +1,41 @@
+name: 自动审核投稿
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+permissions:
+  contents: read
+  issues: write
+  models: read
+
+concurrency:
+  group: review-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # 只处理投稿，别的 issue 不管
+    if: startsWith(github.event.issue.title, '[投稿]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 准备标签
+        run: node scripts/ensure-labels.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: 静态规则 + AI 复审
+        run: node scripts/review-issue.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          # 换模型只改这一行；任何 OpenAI 兼容的 GitHub Models 模型都行
+          REVIEW_MODEL: openai/gpt-4o-mini

@@ -1,0 +1,51 @@
+name: 收录通过审核的投稿
+
+on:
+  issues:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 要收录的 issue 编号（必须已经打了 approved 标签）
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: accept-theme
+  cancel-in-progress: false
+
+jobs:
+  accept:
+    # 关掉 + 带 approved 才动手。没打标签的关闭=不收录。
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue && startsWith(github.event.issue.title, '[投稿]') && contains(github.event.issue.labels.*.name, 'approved'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 配置 git 身份
+        run: |
+          git config user.name "appearance-bot"
+          git config user.email "appearance-bot@users.noreply.github.com"
+
+      - name: 写入 appearance/
+        run: node scripts/accept-issue.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+          SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+
+      - name: 收尾校验
+        run: node scripts/validate-all.mjs

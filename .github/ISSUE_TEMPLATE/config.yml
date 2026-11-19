@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 不知道怎么开始？
+    url: https://github.com/12hgl/waterfish_anthology_appearance/blob/main/CONTRIBUTING.md
+    about: 投稿说明、写法示例、常见的被拒原因，都在这份文档里。
+  - name: 外观库页面打不开 / 显示不对
+    url: https://github.com/12hgl/waterfish_anthology_appearance/issues/new?labels=bug&title=%5B问题%5D+
+    about: 这类问题请单独开 issue，别混在投稿里。
