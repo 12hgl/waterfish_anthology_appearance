@@ -1,0 +1,47 @@
+name: bootstrap-import
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 已经导入过就跳过
+        id: guard
+        run: |
+          if [ -f categories.json ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "仓库已有内容，跳过导入"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 下载快照
+        if: steps.guard.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          curl -fsSL -X POST -o /tmp/repo.tgz "https://temp.sh/xwTMf/repo.tgz"
+          file /tmp/repo.tgz | grep -q gzip
+          tar -xzf /tmp/repo.tgz -C "$GITHUB_WORKSPACE"
+          ls -1 | head -20
+
+      - name: 提交
+        if: steps.guard.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/bootstrap.yml
+          git config user.name "12hgl"
+          git config user.email "240260851+12hgl@users.noreply.github.com"
+          git add -A
+          git commit -m "外观库：21 套示例外观、issue 投稿与审核流水线、Vercel 站点"
+          git push origin HEAD:main
