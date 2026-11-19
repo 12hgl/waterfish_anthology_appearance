@@ -1,0 +1,62 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "node site/build.mjs",
+  "outputDirectory": "site/dist",
+  "installCommand": "echo 'no dependencies'",
+  "trailingSlash": true,
+  "cleanUrls": false,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</sitemap.xml>; rel=\"sitemap\", </llms.txt>; rel=\"llms-txt\"; type=\"text/plain\", </api/themes.json>; rel=\"alternate\"; type=\"application/json\", </.well-known/api-catalog>; rel=\"api-catalog\""
+        },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=(), interest-cohort=()" },
+        { "key": "Vary", "value": "Accept" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800" }]
+    },
+    {
+      "source": "/library/([a-f0-9]{12})/([a-f0-9]{12}\\.js)",
+      "headers": [
+        { "key": "Content-Type", "value": "text/javascript; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=604800, s-maxage=31536000, immutable" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Content-Disposition", "value": "inline; filename=\"theme.js\"" }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Cache-Control", "value": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400" }
+      ]
+    },
+    {
+      "source": "/.well-known/api-catalog",
+      "headers": [
+        { "key": "Content-Type", "value": "application/linkset+json" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    },
+    {
+      "source": "/llms.txt",
+      "headers": [
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=600" }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/themes", "destination": "/library/", "permanent": true },
+    { "source": "/themes/(.*)", "destination": "/library/", "permanent": true },
+    { "source": "/gallery", "destination": "/library/", "permanent": true }
+  ]
+}

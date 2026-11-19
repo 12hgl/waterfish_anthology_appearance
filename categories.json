@@ -1,0 +1,68 @@
+{
+  "$comment": "外观库的分类。order 决定站点与 README 中的顺序；acceptsSubmissions=false 表示只接受维护者手动收录（例如「推荐」）。",
+  "categories": [
+    {
+      "id": "recommended",
+      "name": "推荐",
+      "en": "Recommended",
+      "order": 0,
+      "acceptsSubmissions": false,
+      "blurb": "维护者自己长期在用的几套。不开放投稿，看到合适的会主动拉进来。",
+      "accent": "#1F6C9F"
+    },
+    {
+      "id": "minimal",
+      "name": "简洁",
+      "en": "Minimal",
+      "order": 1,
+      "acceptsSubmissions": true,
+      "blurb": "去掉装饰、去掉颜色，只留下字和它周围的白。",
+      "accent": "#4A4A4A"
+    },
+    {
+      "id": "reading",
+      "name": "阅读",
+      "en": "Reading",
+      "order": 2,
+      "acceptsSubmissions": true,
+      "blurb": "为长时间读长文准备的：米色纸、衬线字、宽行距。",
+      "accent": "#8C5A2B"
+    },
+    {
+      "id": "dark",
+      "name": "深色",
+      "en": "Dark",
+      "order": 3,
+      "acceptsSubmissions": true,
+      "blurb": "夜里开着的那一档。不追求纯黑，追求暗部有层次。",
+      "accent": "#4FD1C5"
+    },
+    {
+      "id": "vivid",
+      "name": "色彩",
+      "en": "Vivid",
+      "order": 4,
+      "acceptsSubmissions": true,
+      "blurb": "敢用撞色的那些。看久了会累，但打开的一瞬间心情好。",
+      "accent": "#FF4D8D"
+    },
+    {
+      "id": "motion",
+      "name": "动效",
+      "en": "Motion",
+      "order": 5,
+      "acceptsSubmissions": true,
+      "blurb": "悬浮、入场、呼吸感。都做了「减弱动态效果」的降级。",
+      "accent": "#7C5CFF"
+    },
+    {
+      "id": "typography",
+      "name": "字体",
+      "en": "Typography",
+      "order": 6,
+      "acceptsSubmissions": true,
+      "blurb": "只动字体和字距，颜色一点都不碰。",
+      "accent": "#0F766E"
+    }
+  ]
+}
