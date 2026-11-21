@@ -1,22 +1,18 @@
 {
-  "name": "waterfish-anthology-appearance",
+  "name": "waterfish-appearance",
   "version": "1.0.0",
   "private": true,
-  "description": "水鱼文集（Waterfish Anthology）外观库：社区投稿的主题 JS、校验脚本与展示站点。",
   "type": "module",
-  "engines": {
-    "node": ">=20"
-  },
-  "scripts": {
-    "index": "node scripts/build-index.mjs",
-    "validate": "node scripts/validate-all.mjs",
-    "build": "node scripts/build-index.mjs && node site/build.mjs",
-    "dev": "node scripts/build-index.mjs && node site/serve.mjs",
-    "new": "node scripts/curate.mjs"
-  },
+  "description": "水鱼文集外观库：社区投稿的 .js 主题、审核流水线与展示站点。",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/12hgl/waterfish_anthology_appearance"
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "node site/build.mjs",
+    "verify": "node scripts/verify.mjs",
+    "index": "node scripts/add.mjs --index",
+    "add": "node scripts/add.mjs",
+    "dev": "node site/dev.mjs",
+    "audit": "node scripts/audit.mjs",
+    "labels": "node scripts/labels.mjs"
   }
 }

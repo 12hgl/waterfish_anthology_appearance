@@ -1,68 +1,61 @@
 {
-  "$comment": "外观库的分类。order 决定站点与 README 中的顺序；acceptsSubmissions=false 表示只接受维护者手动收录（例如「推荐」）。",
+  "$note": "外观分类。order 是站点和 README 里的顺序；open=false 表示不收投稿，只有维护者能往里放（推荐就是这么来的）。",
   "categories": [
     {
       "id": "recommended",
       "name": "推荐",
-      "en": "Recommended",
       "order": 0,
-      "acceptsSubmissions": false,
-      "blurb": "维护者自己长期在用的几套。不开放投稿，看到合适的会主动拉进来。",
-      "accent": "#1F6C9F"
+      "open": false,
+      "accent": "#3E5C50",
+      "note": "维护者自己在用的几套，长期没换过。不开放投稿。"
     },
     {
-      "id": "minimal",
-      "name": "简洁",
-      "en": "Minimal",
+      "id": "plain",
+      "name": "素净",
       "order": 1,
-      "acceptsSubmissions": true,
-      "blurb": "去掉装饰、去掉颜色，只留下字和它周围的白。",
-      "accent": "#4A4A4A"
+      "open": true,
+      "accent": "#57534B",
+      "note": "没有主色，没有圆角，只剩下字和纸。"
     },
     {
       "id": "reading",
       "name": "阅读",
-      "en": "Reading",
       "order": 2,
-      "acceptsSubmissions": true,
-      "blurb": "为长时间读长文准备的：米色纸、衬线字、宽行距。",
-      "accent": "#8C5A2B"
+      "open": true,
+      "accent": "#8C5B33",
+      "note": "长文用的：米色纸、衬线字、行距松一点。"
     },
     {
-      "id": "dark",
-      "name": "深色",
-      "en": "Dark",
+      "id": "night",
+      "name": "夜间",
       "order": 3,
-      "acceptsSubmissions": true,
-      "blurb": "夜里开着的那一档。不追求纯黑，追求暗部有层次。",
-      "accent": "#4FD1C5"
+      "open": true,
+      "accent": "#6C86A0",
+      "note": "晚上开的那一档。不追求纯黑，暗部留层次。"
     },
     {
-      "id": "vivid",
-      "name": "色彩",
-      "en": "Vivid",
+      "id": "color",
+      "name": "撞色",
       "order": 4,
-      "acceptsSubmissions": true,
-      "blurb": "敢用撞色的那些。看久了会累，但打开的一瞬间心情好。",
-      "accent": "#FF4D8D"
+      "open": true,
+      "accent": "#C0342B",
+      "note": "敢用高饱和的。看久了会累，打开那一下心情好。"
     },
     {
       "id": "motion",
       "name": "动效",
-      "en": "Motion",
       "order": 5,
-      "acceptsSubmissions": true,
-      "blurb": "悬浮、入场、呼吸感。都做了「减弱动态效果」的降级。",
-      "accent": "#7C5CFF"
+      "open": true,
+      "accent": "#5B5BD6",
+      "note": "悬停、入场、翻页。都做了「减弱动态效果」的降级。"
     },
     {
-      "id": "typography",
+      "id": "type",
       "name": "字体",
-      "en": "Typography",
       "order": 6,
-      "acceptsSubmissions": true,
-      "blurb": "只动字体和字距，颜色一点都不碰。",
-      "accent": "#0F766E"
+      "open": true,
+      "accent": "#2F6B4F",
+      "note": "只动字体、字距和行高，颜色一点都不碰。"
     }
   ]
 }

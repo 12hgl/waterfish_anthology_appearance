@@ -1,0 +1,41 @@
+name: 自动审核
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+permissions:
+  contents: read
+  issues: write
+  models: read
+
+concurrency:
+  group: audit-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    # 只处理标题以 [投稿] 开头的 issue
+    if: startsWith(github.event.issue.title, '[投稿]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 建标签
+        run: node scripts/labels.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: 静态规则 + AI 复审
+        run: node scripts/audit.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          # 换模型只改这一行，GitHub Models 上的 OpenAI 兼容模型都能用
+          REVIEW_MODEL: openai/gpt-4o-mini

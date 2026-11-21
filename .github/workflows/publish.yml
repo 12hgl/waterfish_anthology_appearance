@@ -1,0 +1,75 @@
+name: 收录
+
+on:
+  issues:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 要收录的 issue 编号（必须带 approved 标签）
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: intake
+  cancel-in-progress: false
+
+jobs:
+  intake:
+    # 关闭 + approved 才动手。只关不打标签 = 不收。
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue && startsWith(github.event.issue.title, '[投稿]') && contains(github.event.issue.labels.*.name, 'approved'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 写进 appearance/
+        id: intake
+        continue-on-error: true
+        run: node scripts/intake.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+
+      - name: 校验 + 构建
+        if: steps.intake.outcome == 'success'
+        run: |
+          node scripts/verify.mjs
+          node site/build.mjs
+        env:
+          SITE_ORIGIN: ${{ vars.SITE_ORIGIN || 'https://appearance.waterfish.ren' }}
+
+      - name: 提交并推送
+        id: push
+        if: steps.intake.outcome == 'success'
+        run: |
+          git config user.name "appearance-bot"
+          git config user.email "appearance-bot@users.noreply.github.com"
+          git add appearance
+          if git diff --cached --quiet; then
+            echo "没有新文件，跳过提交"
+          else
+            git commit -m "收录：来自 issue #${{ github.event.issue.number || inputs.issue_number }}"
+            git push
+          fi
+          touch .pushed
+
+      - name: 回话
+        if: always()
+        run: node scripts/notify.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}

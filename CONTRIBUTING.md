@@ -1,153 +1,129 @@
 # 投稿说明
 
-写给想放一套外观进来的人。
+想给外观库添一套，看完这页就够了。
 
-## 先说清楚风险
+## 先想清楚一件事
 
-主题是一个 `.js` 文件，会在**别人的浏览器里、页面主世界**执行。它和页面本身权限一样大：
-能读 DOM、能发请求、能改页面上的任何东西。
+主题是 `.js`，会在**别人的浏览器里执行**，跑在页面主世界，能碰到 `document`。
+所以我们看代码，不只看截图。约定只有一句：**只碰外观，别碰数据。**
 
-这意味着两件事：
+## 怎么写
 
-- 我不会乱收。每套都要过静态规则和模型复审，最后我自己再看一眼。
-- 你别写奇怪的东西。不是怕被拒，是这种东西本来就不该出现在「换个颜色」的场景里。
+### 简单写法
 
-## 它能改什么
-
-一句话：**改样子，不改内容**。
-
-能改：颜色、字体、字号、圆角、间距、阴影、背景、动效、图标、深浅两套配色。
-不该改：页面上的文字、链接指向、用户数据、任何会发出去的东西。
-
-## 两种写法
-
-### 简单写法：只改几个键
-
-一行一条，只写想改的，其余全部沿用内置的「纸墨」：
+一行一条，只写想改的，其余全部沿用内置外观。
 
 ```js
-// 护眼米色
-主色: #8C5A2B
-副色: #B45309
-底色: #F7F1E6
-圆角: 12
+主色: #3E5C50
+底色: #F7F5EE
+圆角: 8
 ```
+
+三种写法都认：`主色: #3E5C50`、`主色 = #3E5C50`、`主色 #3E5C50`。
+`//` 和 `#` 开头的行是注释。
 
 | 键 | 作用 | 取值 |
 | --- | --- | --- |
-| `主色` / `accent` | 强调色：图标、链接、选中态、按钮 | 颜色 |
-| `副色` / `accent2` | 次级强调 + 页面淡彩 | 颜色 |
-| `背景` / `bg` | 背景图，或直接当纸面色 | 图片地址或颜色 |
-| `字体` / `font` | 正文字体 | `serif` / `round` / `mono` / `system`，或字体名 |
-| `文字` / `ink` | 正文文字色 | 颜色 |
+| `主色` / `accent` | 强调色：图标、链接、选中态 | 颜色 |
+| `副色` / `accent2` | 次级强调，也会给纸面上一点淡彩 | 颜色 |
+| `背景` / `bg` | 页面背景图；填颜色就当纸面色 | `https://…` 或颜色 |
+| `字体` / `font` | 正文字体 | `serif` `round` `mono` `system`，或字体名 |
+| `文字` / `ink` | 正文颜色 | 颜色 |
 | `底色` / `paper` | 纸面底色 | 颜色 |
 | `圆角` / `radius` | 卡片与控件圆角 | `0`–`40` |
 
-三种写法都认：`主色: #1F6C9F`、`主色 = #1F6C9F`、`主色 #1F6C9F`。
-`//` 或 `#` 开头的行是注释。
+简单写法只有一套颜色：深色模式下应用会把它压回浅色，所以投稿时分类别选「夜间」。
 
-写错的键会被跳过（不会整份失效），但审核时会提醒你哪一行不认识。
+### 复杂写法
 
-### 脚本写法：需要动样式和动效时
-
-文件里定义 `function theme(api)`，客户端检测到就按脚本执行：
+文件里定义 `function theme(api)`，应用检测到这个函数就按脚本执行。
 
 ```js
 function theme(api) {
   const dark = api.dark;
 
-  api.setVar('--paper', dark ? '#141110' : '#FBF5E8');
-  api.setVar('--accent', dark ? '#E0A458' : '#B4700F');
+  api.setVar('--paper', dark ? '#131313' : '#F7F5EE');
+  api.setVar('--ink', dark ? '#E6E4DD' : '#24241F');
+  api.setVar('--accent', dark ? '#8FBBA6' : '#3E5C50');
 
   api.css(`
-    .card { transition: transform .22s ease; }
     .card:hover { transform: translateY(-2px); }
+    @media (prefers-reduced-motion: reduce) { .card:hover { transform: none; } }
   `);
 
-  api.icon('book', '<path d="M4 5.5A2 2 0 0 1 6 3.5h13v17H6A2 2 0 0 0 4 22.5z"/>');
+  api.icon('book', '<path d="M4 3h9a2 2 0 0 1 2 2v11H4z"/>');
 }
 ```
 
-| API | 作用 |
+可用的 API：
+
+| 调用 | 说明 |
 | --- | --- |
-| `api.setVar(name, value)` | 设置根元素 CSS 变量，`name` 必须以 `--` 开头 |
+| `api.setVar(name, value)` | 设置根元素 CSS 变量，名字必须以 `--` 开头 |
 | `api.css(text)` | 注入一段 `<style>`，切主题时自动移除 |
 | `api.icon(name, svg)` | 覆盖内置图标，颜色跟随 `currentColor` |
-| `api.el` | 根元素，可以查任何节点——**也是风险所在** |
-| `api.dark` | 当前是否深色，可写两套配色 |
-| `api.vars(name)` | 读某个 CSS 变量的当前值 |
+| `api.el` | 根元素，能自己查询节点 |
+| `api.dark` | 当前是否深色 |
+| `api.vars(name)` | 读某个变量的当前值 |
 
-常用的 CSS 变量：`--paper`、`--surface` / `--surface-2` / `--surface-3`、`--line`、`--ink` / `--ink-2` / `--ink-3`、
-`--accent` / `--accent-ink` / `--accent-soft` / `--accent-line`、`--btn-bg` / `--btn-ink`、`--r-sm` / `--r` / `--r-lg`、
-`--serif` / `--sans` / `--mono`。
+常用变量：`--paper` `--surface` `--surface-2` `--surface-3` `--line` `--line-strong`
+`--ink` `--ink-2` `--ink-3` `--accent` `--accent-ink` `--accent-soft` `--accent-line`
+`--btn-bg` `--btn-ink` `--r` `--r-lg` `--app-font`。
 
-### 加动效时注意
+### 头部注释
 
-- 位移别超过 3px，列表滚动时会晕；
-- 一定要写 `@media (prefers-reduced-motion: reduce)` 的降级；
-- 别给按钮加循环动画，会让人不敢点。
+在文件开头写几行 `// @…`，收录时会被读出来（简单写法的文件里也可以写，应用会跳过注释行）：
 
-## 怎么交
-
-1. 打开 [投稿 issue](https://github.com/12hgl/waterfish_anthology_appearance/issues/new?template=theme-submission.yml)；
-2. 填：作者、名称、简介（建议写）、希望分类（可选）、JS 内容；
-3. JS 内容用 ` ```js ` 代码块包住。超过 40 KB 就贴 raw 链接（`raw.githubusercontent.com` 或 gist 直链）。
-
-名称 2–8 个字，尽量别和库里已有的重名——重名不会报错，但别人搜起来会混乱。
-
-## 会被直接拒的
-
-不是审美问题，是安全问题。命中任意一条，自动审核就挂：
-
-- `eval()`、`new Function()`、动态 `import()`
-- 任何网络请求：`fetch` / `XMLHttpRequest` / `WebSocket` / `sendBeacon` / `new Image()` 上报
-- 读写 `document.cookie`、`localStorage`、`sessionStorage`、`indexedDB`
-- 动态插入 `<script>`、`iframe`、`<object>`
-- 改 `location`、`window.open`、`postMessage`
-- 构造或提交表单
-- 监听 `keydown` / `input` 之类的输入事件
-- 从不明域名加载脚本或样式
-- 内容里有色情、赌博、诈骗、引流广告、硬编码联系方式
-
-## 会被犹豫的
-
-不直接拒，但我会看完再决定：
-
-- 引用了外部域名。背景图通常没问题；字体 CDN 会看是哪家；脚本一律不行。
-- 很长的 base64 段，看不出意图。
-- 大面积 `!important` 覆盖、删节点——可能弄坏应用本身。
-- 明显是从别处打包压缩过来的代码。
-
-## 审核流程
-
-```
-你提交
-  → 几分钟内：机器人回评论（规则命中项 + 模型意见 + 得分）
-  → 我点 approved 并关闭 issue
-  → Action 把文件写进 appearance/<分类>/<哈希>/，回评论告诉你页面地址
-  → Vercel 1–2 分钟后构建完，页面可访问
+```js
+// @name 松烟
+// @author waterfish
+// @category recommended
+// @mode both
+// @date 2026-11-15
+// @summary 灰绿压住暖白，像旧纸上落了一层松烟墨。
+// @note 深色不是把浅色翻过来，是另配的一套。
 ```
 
-快的时候当天，慢的时候一周。没通过的话，评论里会写清楚卡在哪一条，
-**改完直接编辑 issue 正文**，机器人会重审，不用重开。
+`@category` 要和最终分类一致，`@mode` 取 `light` / `dark` / `both`。
 
-## 收录之后
+## 会被拦下来的
 
-- 署名用你填的 GitHub 用户名，页面和 README 上都会链到你的主页；
-- 以 MIT 协议随仓库分发，别人可以改、可以再用；
-- 你想改内容？不要改文件名或目录名——哈希按内容算，改了内容就是另一套。
-  正确做法是重新走一次投稿，或者提个 issue 让我替换；
-- 想撤掉？开个 issue 说一声就行。下架不会删 git 历史，只是从列表里移走。
+投稿一开，机器人先跑静态规则，下面这些命中就拦：
 
-## 本地想先试试
+- `eval(` / `new Function(` —— 动态执行代码
+- `fetch(` / `XMLHttpRequest` / `sendBeacon` / `WebSocket` —— 网络请求
+- `document.cookie` / `localStorage` / `sessionStorage` / `indexedDB` —— 碰登录态和本地数据
+- `location.href =` / `window.open(` —— 跳转
+- `addEventListener('key…` / `onkeydown` —— 监听输入
+- 往页面里塞 `<script>`
 
-```bash
-git clone https://github.com/12hgl/waterfish_anthology_appearance
-cd waterfish_anthology_appearance
-node scripts/curate.mjs --file ./your-theme.js --name 测试 --category minimal
-node scripts/validate-all.mjs
-node site/build.mjs && node site/serve.mjs
-```
+还有几项会被「留意」但通常不拦：引用外部域名（字体、背景图通常没问题，脚本不行）、
+`api.el` 直接改 DOM、CSS `@import`、`url(...)` 指向外链。能省就省。
 
-打开 `http://localhost:4173/library/` 就能看到你那套的效果预览——预览是真的在跑你的代码，
-不是截图。确认没问题再把文件删掉，别提交。
+## 分类怎么选
+
+| 分类 | 适合 |
+| --- | --- |
+| 素净 | 去装饰、去颜色，只剩字和纸 |
+| 阅读 | 米色纸、衬线字、行距松，给长文 |
+| 夜间 | 深色为主，或者只为深色设计 |
+| 撞色 | 高饱和，主色很抢眼 |
+| 动效 | 悬停、入场、翻页这类，记得做 `prefers-reduced-motion` 降级 |
+| 字体 | 只动字体、字距、行高，颜色不碰 |
+| 推荐 | **不开放投稿**。维护者自己在用的那几套 |
+
+拿不准就随便选一个，维护者收录时会调整。
+
+## 审核与打回
+
+1. 机器人评论一条结论：拦了什么、哪一行、建议怎么改
+2. 打回不用重新开 issue，**直接编辑 issue 正文**，机器人会重审
+3. 通过了，维护者打 `approved` 并关闭，文件写进 `appearance/`，CI 过了就上线
+
+## 几条硬规则
+
+- 文件 ≤ **64 KB**
+- 名称 2–8 个字，不能和库里已有的重名（重名会打回，因为应用里主题名就是文件名）
+- 内容必须是有效的主题：要么全是「键: 值」，要么定义了 `function theme(api)`
+- 不能改别人的主题再投——地址是按内容哈希算的，改了就是另一套，署别人名字算抄袭
+- 投稿即同意以 MIT 协议随本仓库分发
