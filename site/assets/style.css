@@ -260,6 +260,11 @@ h3 { font-size: 17px; }
   max-width: 46ch;
 }
 
+/* 库页按分类分组时，说明文字另起一行，免得挤在标题右边折成一条窄柱 */
+.sec-head--stack { display: block; }
+.sec-head--stack h2 { margin: 0 0 7px; }
+.sec-head--stack p { max-width: 58ch; }
+
 section { padding: 62px 0; }
 section + section { border-top: 1px solid var(--line); }
 
@@ -421,6 +426,7 @@ section + section { border-top: 1px solid var(--line); }
 .preview-frame {
   display: block;
   width: 100%;
+  max-width: 100%;
   height: 430px;
   border: 0;
   background: #fff;
@@ -706,6 +712,11 @@ section + section { border-top: 1px solid var(--line); }
   padding-bottom: 60px;
 }
 
+/* 网格子项默认 min-width:auto，里面的 iframe / pre 会把列顶宽 */
+.detail-grid > *,
+.hero-grid > *,
+.split > * { min-width: 0; }
+
 .spec {
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -966,7 +977,9 @@ details.faq p { margin: 10px 0 0 22px; color: var(--ink-2); font-size: 14.5px; }
 
 @media (max-width: 860px) {
   .hero { padding: 44px 0 40px; }
-  .hero-grid, .split, .detail-grid { grid-template-columns: 1fr; gap: 34px; }
+  /* 单列时务必写 minmax(0,1fr)：预览框里的 iframe 是替换元素，
+     它的固有宽度（跟着预览文档走）会把 1fr 这一列撑到一千多像素。 */
+  .hero-grid, .split, .detail-grid { grid-template-columns: minmax(0, 1fr); gap: 34px; }
   .preview-frame { height: 340px; }
   section { padding: 44px 0; }
   .brand small { display: none; }
