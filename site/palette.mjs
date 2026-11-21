@@ -5,8 +5,10 @@ const isColor = (v) => /^#[0-9a-fA-F]{3,8}$/.test(String(v || '').trim());
 export function paletteOf(source, fallback) {
   const found = { paper: [], ink: [], accent: [] };
 
-  // 复杂写法：setVar('--paper', dark ? A : B) —— 取最后一个，通常就是浅色那一支
-  for (const m of String(source).matchAll(/setVar\(\s*['"]--(paper|ink|accent)['"]\s*,\s*([^\n;]*)/g)) {
+  // 复杂写法：setVar('--paper', dark ? A : B)。作者常写个 v() 包一层，
+  // 所以这里不认函数名，只认「第一个参数是 --paper / --ink / --accent」的调用。
+  // 取参数里最后一个色值，那通常是浅色那一支。
+  for (const m of String(source).matchAll(/\(\s*['"]--(paper|ink|accent)['"]\s*,\s*([^\n;]*)/g)) {
     const colors = m[2].match(/#[0-9a-fA-F]{3,8}/g);
     if (colors && colors.length) found[m[1]].push(colors[colors.length - 1]);
   }

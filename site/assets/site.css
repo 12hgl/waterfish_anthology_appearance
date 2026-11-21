@@ -288,7 +288,7 @@ h3 { font-size: 19px; }
 .trow .ds { color: var(--ink-3); font-size: 13px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .trow .r { display: flex; align-items: center; gap: 12px; font: 11.5px/1 var(--mono); color: var(--ink-3); white-space: nowrap; }
 .pal { display: flex; gap: 3px; }
-.pal i { width: 10px; height: 10px; display: block; border: 1px solid rgba(0,0,0,.08); }
+.pal i { width: 10px; height: 10px; display: block; box-shadow: 0 0 0 1px rgba(0,0,0,.16); }
 .trow .go { color: var(--ink-3); }
 .trow:hover .go { color: var(--seal); }
 .trow .go svg { width: 14px; height: 14px; display: block; }
