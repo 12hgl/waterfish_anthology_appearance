@@ -37,7 +37,7 @@ export function home(ctx) {
       <h1>把界面，<br><span class="em">调成你喜欢的样子</span>。</h1>
       <p class="lede">
         水鱼文集是一个跑在自己 NAS 上的文集应用：书架、文章、标签、阅读进度，全在你自己手里。
-        它允许你上传一个 <code>.js</code> 换掉整套界面——内置五套，剩下的 ${n(stats.total)} 套在这里，
+        它允许你上传一个 <code>.js</code> 换掉整套界面——应用自带五套，这里另有 ${n(stats.total)} 套，
         都是别人写好的。下载、上传、生效，没有插件市场，不用登录。
       </p>
       <div class="cta-row">
@@ -379,7 +379,7 @@ export function library(ctx, { categoryId = null } = {}) {
         : grouped
             .map(
               (g) => `<div style="margin-bottom:46px">
-      <div class="sec-head" style="margin-bottom:18px">
+      <div class="sec-head sec-head--stack" style="margin-bottom:18px">
         <h2 style="font-size:22px"><a href="/library/c/${g.c.id}/" style="text-decoration:none;color:inherit">${esc(g.c.name)}</a></h2>
         <p>${esc(g.c.blurb)}</p>
       </div>
