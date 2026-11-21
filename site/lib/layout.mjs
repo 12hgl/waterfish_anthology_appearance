@@ -55,7 +55,8 @@ export function page({ title, description, path, body, current = '', jsonLd = []
 <meta property="og:title" content="${esc(fullTitle)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${canonical}">
-<meta name="twitter:card" content="summary_large_image">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary">
 <meta name="theme-color" content="#1F6C9F">
 <link rel="icon" href="${FAVICON}">
 <link rel="stylesheet" href="/assets/style.css">
