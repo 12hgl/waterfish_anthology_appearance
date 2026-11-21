@@ -5,7 +5,8 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, scanThemes, siteOrigin, readCategories } from '../scripts/lib/shared.mjs';
+import { createHash } from 'node:crypto';
+import { ROOT, scanThemes, siteOrigin, readCategories, parseFrontMatter } from '../scripts/lib/shared.mjs';
 import { SITE, esc } from './lib/layout.mjs';
 import { paletteOf } from './lib/palette.mjs';
 import { renderPreviewDocument } from './lib/preview.mjs';
@@ -52,6 +53,15 @@ function write(rel, content) {
   const file = path.join(DIST, rel);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, content, 'utf8');
+  return rel;
+}
+
+/** .well-known/… 的内容写两份：带点的规范路径，和不带点的镜像。
+ *  有些静态托管会把点开头的目录漏掉，vercel.json 里再配一条 rewrite 兜底，
+ *  这样 /.well-known/x 总能拿到同一份字节（digest 才不会对不上）。 */
+function writeWellKnown(rel, content) {
+  write(`.well-known/${rel}`, content);
+  write(`well-known/${rel}`, content);
   return rel;
 }
 
@@ -222,6 +232,8 @@ ${themes.map((t) => `- [${t.name}](${SITE_ORIGIN}${t.url})：${t.summary}（${t.
 - 结构化列表：${SITE_ORIGIN}/api/themes.json
 - 站点地图：${SITE_ORIGIN}/sitemap.xml
 - 抓取规则：${SITE_ORIGIN}/robots.txt
+- 技能（Agent Skills）：${SITE_ORIGIN}/.well-known/agent-skills/index.json
+  · 里面有一条 \`waterfish-appearance\`，讲怎么挑一套、怎么装、文件名怎么影响主题名
 - Markdown 协商：请求时带 \`Accept: text/markdown\`，任意页面会返回同路径的 markdown 版本
 - 单个外观的 markdown：\`/library/<hash>/index.md\`
 
@@ -271,8 +283,8 @@ write(
 );
 
 /* RFC 9727 API catalog：告诉 agent「这站有个 JSON 接口」 */
-write(
-  '.well-known/api-catalog',
+writeWellKnown(
+  'api-catalog',
   JSON.stringify(
     {
       linkset: [
@@ -289,11 +301,41 @@ write(
   ) + '\n',
 );
 
+/* Agent Skills 发现索引（.well-known/agent-skills/index.json）。
+   索引里带 digest，客户端下载后要自己算一遍 sha256 比对，所以这里必须先定稿再算。 */
+const skills = [];
+const skillSrcDir = path.join(ROOT, 'site', 'skills');
+if (fs.existsSync(skillSrcDir)) {
+  for (const slug of fs.readdirSync(skillSrcDir)) {
+    const file = path.join(skillSrcDir, slug, 'SKILL.md');
+    if (!fs.existsSync(file)) continue;
+    const text = fs.readFileSync(file, 'utf8').replaceAll('{{ORIGIN}}', SITE_ORIGIN);
+    const { data } = parseFrontMatter(text);
+    writeWellKnown(`agent-skills/${slug}/SKILL.md`, text);
+    skills.push({
+      name: slug,
+      type: 'skill-md',
+      description: String(data.description || '').replace(/\s+/g, ' ').trim(),
+      url: `${SITE_ORIGIN}/.well-known/agent-skills/${slug}/SKILL.md`,
+      digest: 'sha256:' + createHash('sha256').update(text, 'utf8').digest('hex'),
+    });
+  }
+}
+
+writeWellKnown(
+  'agent-skills/index.json',
+  JSON.stringify(
+    { $schema: 'https://schemas.agentskills.io/discovery/0.2.0/schema.json', skills },
+    null,
+    2,
+  ) + '\n',
+);
+
 /* ---------- 报告 ---------- */
 const pages = urls.length + 2;
 console.log(`✓ 构建完成 ${(process.uptime()).toFixed(1)}s`);
 console.log(`  页面 ${pages} 个 · 外观 ${themes.length} 套 · 分类 ${categories.length} 个 · 作者 ${stats.authors} 位`);
-console.log(`  sitemap 收录 ${urls.length} 条 · llms.txt · api/themes.json · robots.txt`);
+console.log(`  sitemap 收录 ${urls.length} 条 · llms.txt · api/themes.json · robots.txt · agent-skills ${skills.length} 条`);
 console.log(`  输出目录 site/dist（${(dirSize(DIST) / 1024).toFixed(0)} KB）`);
 
 function latestOf(list) {

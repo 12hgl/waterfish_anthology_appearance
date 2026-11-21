@@ -183,6 +183,8 @@ DRY_RUN=1 node scripts/accept-issue.mjs --body-file ./issue.md --author someone
 
 ## 部署到 Vercel
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/12hgl/waterfish_anthology_appearance)
+
 1. 在 Vercel 里 Import 这个仓库，框架选 **Other**；
 2. Build Command：`node site/build.mjs`（`vercel.json` 里已写好，一般不用手动填）；
 3. Output Directory：`site/dist`；
@@ -220,11 +222,15 @@ GitHub Actions 那边还需要两步：
 | API Catalog（RFC 9727） | ✅ `/.well-known/api-catalog` |
 | 结构化数据 | ✅ WebSite / CollectionPage / CreativeWork / BreadcrumbList |
 | 机器可读列表 | ✅ `/api/themes.json` |
+| Agent Skills（`/.well-known/agent-skills/index.json`） | ✅ 一条 `waterfish-appearance`，带 sha256 摘要 |
 | DNS-AID | ❌ 需要你在域名里加 DNS 记录，仓库管不到 |
-| MCP Server Card / Agent Skills | ❌ 本站没有可调用的 MCP 服务，不伪造 |
+| MCP Server Card | ❌ 本站没有可调用的 MCP 服务，不伪造 |
 
-后两项要做的话，DNS-AID 需要在 `appearance.waterfish.ren` 下加 TXT 记录；
+最后两项要做的话，DNS-AID 需要在 `appearance.waterfish.ren` 下加 TXT 记录；
 MCP 得先把 `/api/themes.json` 包成一个真的 MCP server。都不难，但都得先有真实功能，不宜先写声明。
+
+Skill 的内容放在 `site/skills/waterfish-appearance/SKILL.md`，构建时把 `{{ORIGIN}}` 换成站点域名、
+算一遍 sha256 写进索引。改这个文件后重新构建即可，摘要会跟着变，不用手动维护。
 
 ## 许可
 

@@ -47,6 +47,20 @@
       ]
     },
     {
+      "source": "/.well-known/agent-skills/index.json",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=600" }
+      ]
+    },
+    {
+      "source": "/.well-known/agent-skills/(.*)/SKILL.md",
+      "headers": [
+        { "key": "Content-Type", "value": "text/markdown; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=600" }
+      ]
+    },
+    {
       "source": "/llms.txt",
       "headers": [
         { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
@@ -58,5 +72,8 @@
     { "source": "/themes", "destination": "/library/", "permanent": true },
     { "source": "/themes/(.*)", "destination": "/library/", "permanent": true },
     { "source": "/gallery", "destination": "/library/", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/.well-known/(.*)", "destination": "/well-known/$1" }
   ]
 }

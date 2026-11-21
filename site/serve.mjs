@@ -34,6 +34,9 @@ const server = http.createServer((req, res) => {
 
   let file = resolve(pathname);
   let type = TYPES[path.extname(file)] || 'application/octet-stream';
+  // 无扩展名的两个 well-known 文档，跟 vercel.json 里的响应头保持一致
+  if (pathname.endsWith('/api-catalog')) type = 'application/linkset+json';
+  if (pathname.endsWith('/SKILL.md')) type = 'text/markdown; charset=utf-8';
 
   if (wantsMd) {
     const mdPath = pathname === '/' ? '/index.md' : pathname.endsWith('/') ? `${pathname}index.md` : `${pathname}/index.md`;
